@@ -1,4 +1,3 @@
-
 create table category (
 	id integer primary key,
 	name varchar(100),
@@ -52,5 +51,8 @@ create table similars (
 	primary key (product_id, asin_of_similar)
 );
 
-
-
+create table product_review (
+	product_id integer references product (id),
+	review_id integer references review (id),
+	primary key (product_id, review_id)
+);
