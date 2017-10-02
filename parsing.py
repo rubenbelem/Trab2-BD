@@ -14,7 +14,8 @@ class Review:
             self.date, self.customer, self.rating, self.votes, self.helpful)
 
 class Category:
-    def __init__(self, name = '', parent = None):
+    def __init__(self, id = 0, name = '', parent = None):
+        self.id = id
         self.name = name
         self.parent = parent
 
@@ -26,19 +27,30 @@ class Category:
 
 class Product:
     def __init__(self):
+        # Inserir um produto com esses dados:
         self.id = 0
         self.asin = ''
         self.title = ''
-        self.group_name = ''
         self.salesrank = 0
+
+        # Tentar inserir um grupo com esse nome (é possível que ele já exista):
+        self.group_name = ''
+
+        # Adicionar essa lista a um dicionário, usando o id desse produto como chave
+        # Depois que todos os produtos forem adicionados, percorrer o dicionário e adicionar as relações "similars"
         self.similars = []
-        self.categories = {}
+
+        # Percorrer esse dicionário e ir adicionando categorias (as chaves neste dicionário são os id's de cada
+        # categoria) (é possível que já existam):
+        self.categories = []
+
+        # Percorrer esta lista e ir adicionando as avaliações:
         self.reviews = []
 
 def extract(field_name, line):
     return line[len(field_name):]
 
-def read_products(filepath = "data/amazon-meta.txt"):
+def read_products(filepath = "data/amazon-meta.txt", limit = None):
     with open(filepath) as file:
         while True:
             line = file.readline()
@@ -50,6 +62,8 @@ def read_products(filepath = "data/amazon-meta.txt"):
                 # print()
                 p.id = int(line[3:])
 
+                if limit != None and p.id > limit: break
+
                 # print("id:", id)
                 p.asin = extract("ASIN:", file.readline()).strip()
                 # print("ASIN:", asin)
@@ -57,7 +71,7 @@ def read_products(filepath = "data/amazon-meta.txt"):
                 disc_check = file.readline().strip()
                 if disc_check == "discontinued product": continue
 
-                p.title = extract("title: ", disc_check)
+                p.title = extract("title: ", disc_check).replace("'", "''")
                 # print("title:", title)
                 p.group_name = extract("  group:", file.readline()).strip()
                 # print("group:", group_str)
@@ -75,6 +89,7 @@ def read_products(filepath = "data/amazon-meta.txt"):
 
                 line = file.readline()
                 n_categories = int(extract("  categories:", line))
+
                 for i in range(0, n_categories):
                     category_line = extract("   |", file.readline()).strip()
 
@@ -82,9 +97,9 @@ def read_products(filepath = "data/amazon-meta.txt"):
 
                     for category_str in category_line.split('|'):
                         bracket_begin = category_str.rfind('[')
-                        name = category_str[:bracket_begin]
+                        name = category_str[:bracket_begin].replace("'", "''")
                         id = int(category_str[bracket_begin + 1 : -1])
-                        p.categories[id] = Category(name, parent)
+                        p.categories.append(Category(id, name, parent))
                         parent = id
 
                 # print("categories:")
@@ -99,15 +114,12 @@ def read_products(filepath = "data/amazon-meta.txt"):
                 for i in range(0, n_reviews):
                     line = file.readline()
 
-                    m = re.match("\W*(?P<year>\d+)-(?P<month>\d+)-(?P<day>\d+)\W+cutomer:\W+(?P<customer_id>\w+)\W+rating:"
+                    m = re.match("\W*(?P<date>[\w-]+)\W+cutomer:\W+(?P<customer_id>\w+)\W+rating:"
                                  "\W+(?P<rating>\d+)\W+votes:\W+(?P<votes>\d+)\W+helpful:\W+(?P<helpful>\d+).*", line)
 
                     review = Review()
 
-                    year = int(m.group("year"))
-                    month = int(m.group("month"))
-                    day = int(m.group("day"))
-                    review.date = date(year, month, day)
+                    review.date = m.group("date")
                     review.customer = m.group("customer_id")
                     review.rating = int(m.group("rating"))
                     review.votes = int(m.group("votes"))
@@ -117,6 +129,3 @@ def read_products(filepath = "data/amazon-meta.txt"):
                     # print("\t" + str(review))
 
                 yield p
-
-del extract
-

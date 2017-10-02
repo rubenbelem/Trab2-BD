@@ -1,7 +1,7 @@
 create table category (
 	id integer primary key,
 	name varchar(100),
-	father_id integer references category (id)
+	father_id integer
 );
 
 create table productgroup (
@@ -17,8 +17,8 @@ create table product (
 );
 
 create table product_group (
-	product_id integer references product (id),
-	group_id integer references productgroup (id),
+	product_id integer,
+	group_id integer,
 	primary key (product_id, group_id)
 );
 
@@ -28,31 +28,31 @@ create table customer (
 
 create table review ( 
 	id serial primary key,
-	date date,
+	reviewdate date,
 	rating integer,
 	votes numeric,
 	helpful numeric
 );
 
 create table customer_review (
-	customer_id varchar(25) references customer (amazon_id),
-	review_id integer references review (id)
+	customer_id varchar(25),
+	review_id integer
 );
 
 create table category_product (
-	category_id integer references category (id),
-	product_id integer references product (id),
+	category_id integer,
+	product_id integer,
 	primary key (category_id, product_id)
 );
 
 create table similars (
-	product_id integer references product (id),
-	asin_of_similar varchar(11) references product (asin),
+	product_id integer,
+	asin_of_similar varchar(11),
 	primary key (product_id, asin_of_similar)
 );
 
 create table product_review (
-	product_id integer references product (id),
-	review_id integer references review (id),
+	product_id integer ,
+	review_id integer,
 	primary key (product_id, review_id)
 );
