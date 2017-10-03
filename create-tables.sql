@@ -13,13 +13,8 @@ create table product (
 	id integer primary key,
 	asin varchar(11) unique,
 	title varchar(500),
-	salesrank integer
-);
-
-create table product_group (
-	product_id integer,
-	group_id integer,
-	primary key (product_id, group_id)
+	salesrank integer,
+    group_id integer
 );
 
 create table customer (
@@ -32,12 +27,8 @@ create table review (
 	rating integer,
 	votes numeric,
 	helpful numeric,
-    product_id integer --foreign key para id do produto na tabela product
-);
-
-create table customer_review (
-	customer_id varchar(25),
-	review_id integer
+    product_id integer, --foreign key para id do produto na tabela product
+    customer_id varchar(25) --foreign key para customer
 );
 
 create table category_product (
