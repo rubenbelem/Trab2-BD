@@ -31,7 +31,8 @@ create table review (
 	reviewdate date,
 	rating integer,
 	votes numeric,
-	helpful numeric
+	helpful numeric,
+    product_id integer --foreign key para id do produto na tabela product
 );
 
 create table customer_review (
@@ -49,10 +50,4 @@ create table similars (
 	product_id integer,
 	asin_of_similar varchar(11),
 	primary key (product_id, asin_of_similar)
-);
-
-create table product_review (
-	product_id integer ,
-	review_id integer,
-	primary key (product_id, review_id)
 );

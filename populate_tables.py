@@ -4,7 +4,7 @@ import sys
 from collections import defaultdict
 import create_schema
 
-con = psycopg2.connect(host='localhost', database='trab2bd',user='bruno',password='123mudar')
+con = psycopg2.connect(host='localhost', database='trab2bd',user='dummy',password='teste123')
 cur = con.cursor()
 
 
@@ -15,13 +15,11 @@ else:
     similars = defaultdict(list)
 
     product_groups = defaultdict(list)
-    counter = 1
-    for product in read_products(limit=1000):
+    #counter = 1
+    for product in read_products(limit=10000):
         # con.rollback()
-        if counter % 100 == 0:
-            con.commit()
 
-        counter += 1
+        #counter += 1
         cur.execute("insert into product values({}, '{}', '{}', {})".format(product.id, product.asin, product.title, product.salesrank))
         #con.commit()
 
@@ -42,13 +40,11 @@ else:
             cur.execute("insert into category_product (category_id, product_id) values({}, {}) on conflict do nothing".format(cat.id, product.id))
 
         for review in product.reviews:
-            cur.execute("insert into review (reviewdate, rating, votes, helpful) values('{}', {}, {}, {}) returning id".format(
-                review.date, review.rating, review.votes, review.helpful))
+            cur.execute("insert into review (reviewdate, rating, votes, helpful, product_id) values('{}', {}, {}, {}, {}) returning id".format(
+                review.date, review.rating, review.votes, review.helpful, product.id))
             #con.commit()
 
             review_id = cur.fetchone()[0]
-
-            cur.execute("insert into product_review (product_id, review_id) values({}, {})".format(product.id, review_id))
 
             #print("insert into customer (amazon_id) values('{}') where not exists(selec * from customer T where T.name='{}')".format(review.customer, review.customer))
             cur.execute("insert into customer (amazon_id) values('{}') on conflict do nothing".format(review.customer))
