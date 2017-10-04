@@ -1,6 +1,11 @@
 import psycopg2
+import sys
 
-con = psycopg2.connect(host='localhost', database='trab2bd',user='samech',password='123')
+if len(sys.argv) < 5:
+    print("Por favor, insira todos os parâmetros:\n\n<host> <database> <user> <password> ")
+    exit()
+
+con = psycopg2.connect(host=sys.argv[1], database=sys.argv[2],user=sys.argv[3], password=sys.argv[4])
 cur = con.cursor()
 
 message  = ""
