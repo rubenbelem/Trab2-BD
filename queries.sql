@@ -1,18 +1,42 @@
 --(a)
 
-(SELECT * FROM (SELECT r.rating as rating, r.votes, r.helpful FROM review r, product_review pr WHERE pr.product_id = 21 AND r.id = pr.review_id AND r.votes <> 0 ORDER BY r.helpful DESC) AS utility_ordered ORDER BY utility_ordered.rating DESC LIMIT 5)
-union all
-(SELECT * FROM (SELECT r.rating as rating, r.votes, r.helpful FROM review r, product_review pr WHERE pr.product_id = 21 AND r.id = pr.review_id AND r.votes <> 0 ORDER BY r.helpful DESC) AS utility_ordered ORDER BY utility_ordered.rating ASC LIMIT 5);
+-- asin para teste: '0790747324'
 
+(select *
+from (
+    select r.rating as rating, r.votes, r.helpful
+    from review r, product ptarget
+    where ptarget.asin = {0} and r.product_id = ptarget.id and r.votes <> 0
+    order by r.rating desc, r.helpful desc
+) as t
+limit 5)
+union all
+(select *
+from (
+    select r.rating as rating, r.votes, r.helpful
+    from review r, product ptarget
+    where ptarget.asin = {0} and r.product_id = ptarget.id and r.votes <> 0
+    order by r.rating asc, r.helpful desc
+) as t
+limit 5);
 
 --(b)
 
-SELECT p.title, p.salesrank FROM product p, product param, (SELECT s.asin_of_similar as similar_asin FROM similars s WHERE s.product_id = $produto_id) as sim WHERE param.id = $produto_id AND p.asin = sim.similar_asin AND p.salesrank < param.salesrank;
+-- asin para teste: 'B00000INB2'
+
+select psim.title, psim.salesrank
+from product psim, similars sim, (select id, salesrank from product where asin = {0}) ptarget
+where sim.product_id = ptarget.id and sim.asin_of_similar = psim.asin and psim.salesrank < ptarget.salesrank;
 
 --(c)
 
-SELECT r.reviewdate, r.rating, AVG(r.rating) FROM review r, product_review pr WHERE pr.product_id = 21 AND r.id = pr.review_id GROUP BY r.reviewdate, r.rating ORDER BY r.reviewdate;
+-- asin para teste: '0790747324'
 
+select r.reviewdate, avg(r.rating)
+from review r, (select id from product where asin = {0}) ptarget
+where r.product_id = ptarget.id
+group by r.reviewdate
+order by r.reviewdate;
 
 --(d)
 
