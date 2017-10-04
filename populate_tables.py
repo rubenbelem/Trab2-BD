@@ -131,5 +131,7 @@ else:
 
     con.commit()
 
+    cur.execute(open("constraints.sql", "r").read())
+    con.commit()
 
 print('done.')
