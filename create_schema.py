@@ -1,10 +1,15 @@
 import psycopg2
+import sys
 from psycopg2 import errorcodes
-con = psycopg2.connect(host='localhost', database='trab2bd',user='dummy',password='teste123')
 
-cur = con.cursor()
-cur.execute('drop table category, category_product, customer, product, productgroup, review, similars cascade')
-cur.execute(open("create-tables.sql", "r").read())
+if len(sys.argv) < 5:
+    print("Por favor, insira todos os parâmetros:\n\n<host> <database> <user> <password> ")
+else:
 
-con.commit()
-con.close()
+    con = psycopg2.connect(host=sys.argv[1], database=sys.argv[2],user=sys.argv[3], password=sys.argv[4])
+
+    cur = con.cursor()
+    cur.execute(open("create-tables.sql", "r").read())
+
+    con.commit()
+    con.close()

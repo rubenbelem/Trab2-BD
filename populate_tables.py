@@ -2,10 +2,6 @@ from parsing import *
 import psycopg2
 import sys
 from collections import defaultdict
-import create_schema
-
-con = psycopg2.connect(host='localhost', database='trab2bd',user='dummy',password='teste123')
-cur = con.cursor()
 
 groups = {}
 categories = {}
@@ -19,9 +15,13 @@ def bulk_insert(cursor, sql, template, list_to_insert):
     #print(sql + args_str)
         cursor.execute(sql + args_str)
 
-if len(sys.argv) < 1:
-    print("Please pass the path to the amazon file as an argument to the script.")
+if len(sys.argv) < 6:
+    print("Por favor, insira todos os parâmetros:\n\n<host> <database> <user> <password> <path_to_amazon_file>")
 else:
+    con = psycopg2.connect(host=sys.argv[1], database=sys.argv[2], user=sys.argv[3], password=sys.argv[4])
+    path_to_file = sys.argv[5]
+    cur = con.cursor()
+
     #file_path = sys.argv[1]
     similars = defaultdict(list)
 
@@ -31,7 +31,7 @@ else:
     reviews_to_insert = []
 
     counter = 1
-    for product in read_products(limit=None):
+    for product in read_products(filepath=path_to_file, limit=None):
         # con.rollback()
         if product.asin not in valid_asins:
             valid_asins[product.asin] = 0
@@ -39,6 +39,7 @@ else:
         counter += 1
 
         if counter % 20000 == 0:
+            print("{} produtos inseridos.".format(counter))
             #del products_to_insert
             bulk_insert(cur, "insert into product values ", "(%s, %s, %s, %s, %s)", products_to_insert)
             bulk_insert(cur, "insert into category values ", "(%s, %s, %s)", categories_to_insert)
