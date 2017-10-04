@@ -1,0 +1,1 @@
+select revs.title, avg(revs.rating) as average from (select product_id, pp.title, rating from review r, product pp where r.helpful > 0 and pp.id = r.product_id) revs group by revs.title order by average desc limit 10;
