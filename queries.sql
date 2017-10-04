@@ -23,6 +23,18 @@ from (
 	from (select * from product where salesrank >= 0) p ) x
 where x.r <= 10;
 
+--(e)
+
+select revs.title, avg(revs.rating) as average from (select product_id, pp.title, rating from review r, product pp where r.helpful > 0 and pp.id = r.product_id) revs group by revs.title order by average desc limit 10;
+
+
+--(f)
+
+select cc.name, res.rating_average from (select p.category_id, avg(revs.rating) as rating_average from 
+(select product_id, rating from review r where r.helpful > 0) revs 
+join 
+(select x.id, cp.category_id from product x, category_product cp where cp.product_id = x.id) p 
+on revs.product_id = p.id group by p.category_id order by rating_average desc limit 5) res, category cc where res.category_id = cc.id;
 
 --(g)
 
