@@ -51,6 +51,7 @@ def extract(field_name, line):
     return line[len(field_name):]
 
 def read_products(filepath = "data/amazon-meta.txt", limit = None):
+
     with open(filepath) as file:
         while True:
             line = file.readline()
